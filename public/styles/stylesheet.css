@@ -82,6 +82,9 @@ h1{
 
 
  @media (max-width: 1000px)  {
+    h1{
+        display: none;
+    }
     body{
         background-color: rgba(109, 173, 100, 0.2);
     }
@@ -96,6 +99,9 @@ h1{
     
  }
  @media(min-width:300px)and (max-width: 1000px) {
+    h1{
+        display: none;
+    }
     body{
         background-color: rgba(109, 173, 100, 0.2);
     }
