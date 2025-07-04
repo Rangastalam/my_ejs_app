@@ -10,38 +10,38 @@
 
 
                     <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
+
                         <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
+                            <h5 class="card-title">Season 1</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk
                                 of
                                 the
                                 card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="/posts/Season-1" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
 
                     <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
+
                         <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
+                            <h5 class="card-title">Season 2</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk
                                 of
                                 the
                                 card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="/posts/Season-2" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
 
                     <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
+
                         <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
+                            <h5 class="card-title">Season 3</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk
                                 of
                                 the
                                 card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="/posts/Season-3" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
                 </div>
@@ -49,40 +49,52 @@
             <div class="container row-2 ">
                 <div class="row">
                     <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
+
                         <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
+                            <h5 class="card-title">Season 4</h5>
                             <p class="card-text">Some quick example text to build on the card title and make up the bulk
                                 of
                                 the
                                 card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="/posts/Season-4" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
 
                     <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
 
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-                        
                         <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
+                            <h5 class="card-title">Season 5</h5>
+                            <p class="card-text "style="height: 110px;">Some quick example text to build on the card title and make up the bulk
                                 of
                                 the
                                 card’s content.</p>
-                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                            <a href="/posts/Season-5" class="btn btn-primary">Go somewhere</a>
                         </div>
                     </div>
+                    <% if (locals.newposts.length!=0) { %>
+                        <% newposts.forEach(newpost=> { %>
+                            <div class="card col-3 col-sm-3" style="width: 18rem;">
+
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <%=newpost.title%>
+                                    </h5>
+                                    <p class="card-text" style="height: 110px;">
+                                        <% if(newpost.content.length> 100) { %>
+                                                <%=newpost.content.substring(0, 100) + '.....' %>
+                                        <% } else { %>
+                                                <%=newpost.content %>
+                                         <% } %>
+                                    </p>
+                                    <a href="/posts/<% newpost.title %>" class="btn btn-primary">read</a>
+                                </div>
+                            </div>
+
+                        <% }); %>;
+
+                    <% } %>
+
+
 
 
                 </div>
