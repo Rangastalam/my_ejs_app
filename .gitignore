@@ -1,2 +1,11 @@
-.env
 
+node_modules/
+npm-debug.log
+.DS_Store
+.vscode/
+dist/
+coverage/
+.env
+*.log
+*.env
+*.lock      
