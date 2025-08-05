@@ -7,6 +7,9 @@ import { Strategy } from "passport-local";
 import session from "express-session";
 import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2";
+import flash from "connect-flash";
+
+
 
 const app = express();
 const port = 3000;
@@ -43,8 +46,7 @@ const data = [
 ];
 var newdata = [];
 
-
-
+app.use(flash());
 
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
@@ -55,7 +57,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login.ejs");
+ 
+  
+  res.render("login.ejs",{ message: req.flash("error") });
 }); 
 
 app.get("/compose", (req, res) => {
@@ -70,7 +74,53 @@ app.get("/auth/google/heisenBlog",passport.authenticate("google",{
   failureRedirect:"/login",
 }));
 
+app.get("/register", (req, res) => {
+  res.render("register.ejs", { message: req.flash("error") });
+});
+app.post("/register", async (req, res) => {
+  const email = req.body.username;
+  const password = req.body.password;
 
+  try {
+    const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (checkResult.rows.length > 0) {
+      req.flash("error", "User already exists. Please log in.");
+      return res.redirect("/register");
+    } else {
+      bcrypt.hash(password, saltRounds, async (err, hash) => {
+        if (err) {
+          req.flash("error", "Error hashing password.");
+          return res.redirect("/register");
+        } else {
+          const result = await db.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
+            [email, hash]
+          );
+          const user = result.rows[0];
+          req.login(user, (err) => {
+            if (err) {
+              req.flash("error", "Registration succeeded but login failed.");
+              return res.redirect("/register");
+            }
+            res.redirect("/");
+          });
+        }
+      });
+    }
+  } catch (err) {
+    req.flash("error", "Server error during registration.");
+    res.redirect("/register");
+  }
+});
+app.post("/login",passport.authenticate("local",{
+  successRedirect: "/",
+  failureRedirect: "/login",
+  failureFlash: true,
+
+}));
 app.post("/add", (req, res) => {
   const newpost = {
     title: req.body.title,
@@ -92,7 +142,37 @@ app.get("/posts/:postName", (req, res) => {
 
 
 passport.use("local", new Strategy(async function verify(username, password, cb) {
+  try {
+      const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
+        username,
+      ]);
+      if (result.rows.length > 0) {
+        // console.log("User found:", result.rows[0]);
+        const user = result.rows[0];
+        const storedHashedPassword = user.password;
+        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+          if (err) {
+            //Error with password check
+            console.error("Error comparing passwords:", err);
+            return cb("Server error");
+          } else {
+            if (valid) {
+              //Passed password check
+              return cb(null, user);
+            } else {
+              //Did not pass password check
+              return cb(null,false, { message: "Incorrect username or password." });
+            }
+          }
+        });
+      } else {
 
+        return cb(null, false, { message: "user not found try registering first" });
+      }
+    } catch (err) {
+      cb("Server error: " );
+      console.log(err);
+    }
 
 }));
 passport.use("google", new GoogleStrategy({

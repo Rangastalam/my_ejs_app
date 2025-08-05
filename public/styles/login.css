@@ -8,7 +8,7 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
- color: #e0e0e0;
+ color: #e2e2e2;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -97,14 +97,13 @@ body {
   transition: all 0.3s;
 }
 
-.google-btn img {
-  width: 20px;
-  margin-right: 10px;
-}
+
 
 .google-btn:hover {
   background-color: #e0e0e0;
 }
+
+
 
 
 /*Animation */
@@ -123,21 +122,19 @@ body {
   position: absolute;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(0, 255, 0, 0.4), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 255, 0, 0.4), transparent 50%);
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.6;
+  opacity: 0.8;
   animation: smokeRise 30s linear infinite;
 }
 
 .smoke1 { top: 100%; left: 10%; animation-delay: 0s; }
-.smoke2 { top: 110%; left: 40%; animation-delay: 5s; }
-.smoke3 { top: 105%; left: 70%; animation-delay: 10s; }
-.smoke4 { top: 120%; left: 25%; animation-delay: 15s; }
-.smoke5 { top: 130%; left: 60%; animation-delay: 20s; }
+.smoke2 { top: 110%; left: 40%; animation-delay: 3s; }
+.smoke3 { top: 105%; left: 70%; animation-delay: 6s; }
 
 @keyframes smokeRise {
   0% { transform: translateY(0) scale(1); opacity: 0.3; }
-  50% { opacity: 0.6; }
+  50% { opacity: 0.8; }
   100% { transform: translateY(-200vh) scale(2.5); opacity: 0; }
 }
