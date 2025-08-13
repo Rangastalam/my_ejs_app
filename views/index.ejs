@@ -1,105 +1,26 @@
 <%- include('partials/header.ejs') %>
 
 
-    <div class="main">
 
-        <div class="box">
-            <h1 class="fade-element">Hey DUDE! wanna read some cool stories</h1>
-            <div class="container row-1 ">
-                <div class="row">
-
-
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">Season 1</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="/posts/Season-1" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">Season 2</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="/posts/Season-2" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">Season 3</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="/posts/Season-3" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="container row-2 ">
-                <div class="row">
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">Season 4</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="/posts/Season-4" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-
-                    <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">Season 5</h5>
-                            <p class="card-text "style="height: 110px;">Some quick example text to build on the card title and make up the bulk
-                                of
-                                the
-                                card’s content.</p>
-                            <a href="/posts/Season-5" class="btn btn-primary">Go somewhere</a>
-                        </div>
-                    </div>
-                    <% if (locals.newposts.length!=0) { %>
-                        <% newposts.forEach(newpost=> { %>
-                            <div class="card col-3 col-sm-3" style="width: 18rem;">
-
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <%=newpost.title%>
-                                    </h5>
-                                    <p class="card-text" style="height: 110px;">
-                                        <% if(newpost.content.length> 100) { %>
-                                                <%=newpost.content.substring(0, 100) + '.....' %>
-                                        <% } else { %>
-                                                <%=newpost.content %>
-                                         <% } %>
-                                    </p>
-                                    <a href="/posts/<% newpost.title %>" class="btn btn-primary">read</a>
-                                </div>
-                            </div>
-
-                        <% }); %>;
-
-                    <% } %>
+<section class="hero">
+ 
+  <div class="hero-content">
+    <h1><span class="bb">Br</span>eaking<span class="bb">Ba</span>log</h1>
+    <p>The ultimate Breaking Bad blog for fans who want more than just the show.</p>
+    <a href="/posts" class="btn">Start Reading</a>
+  </div>
+</section>
 
 
+<script>
+  const hero = document.querySelector('.hero');
+  hero.addEventListener('mousemove', e => {
+    const x = e.clientX;
+    const y = e.clientY;
+    hero.style.setProperty('--cursor-x', `${x}px`);
+    hero.style.setProperty('--cursor-y', `${y}px`);
+  });
+</script>
 
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <%- include('partials/footer.ejs') %>
+    
+<!-- <%- include('partials/footer.ejs') %> -->
