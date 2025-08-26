@@ -8,6 +8,7 @@ import session from "express-session";
 import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2";
 import flash from "connect-flash";
+import { blogCategories,blog_data } from "./assets.js";
 
 
 
@@ -48,7 +49,9 @@ var newdata = [];
 
 app.use(flash());
 app.get("/",(req,res)=>{
-  res.render("index.ejs");
+
+
+  res.render("index.ejs",[blogCategories,blog_data]);
 
 });
 // app.get("/", (req, res) => {
