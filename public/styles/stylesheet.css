@@ -1,21 +1,13 @@
-/* Center card container */
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 32px;
-  padding: 30px 0 60px 0;
-}
+
 
 @import url('https://fonts.googleapis.com/css2?family=Montez&family=Noto+Sans+Batak&family=Noto+Serif+Dives+Akuru&family=Orbitron:wght@400..900&display=swap');
 
 *{
     
 
-  font-family: "Orbitron", sans-serif;
+  
   font-optical-sizing: auto;
-  font-weight: 50;
+  font-weight: 500;
   font-style: normal;
 
 }
@@ -29,6 +21,7 @@ body {
 
 
 .navbar {
+  font-family: "Orbitron", sans-serif;
   
   width: 100%;
   z-index: 1000;
@@ -137,9 +130,10 @@ body {
 
 
 .hero {
+  font-family: "Orbitron", sans-serif;
 
   position: relative;
-  height: 80vh;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -267,10 +261,18 @@ background-color: #f7f7fa;
 button{
   cursor: pointer;
 }
-
+/* Center card container */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 30px 0 60px 0;
+}
 .card {
   width: 350px;
-  height: fit-content;
+  height:650px;
   border-radius: 16px;
   overflow: hidden;
   background: rgba(20, 20, 20, 0.9);
@@ -283,14 +285,16 @@ button{
 
 .card:hover {
   transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 12px 35px rgba(0, 255, 150, 0.25);
+  box-shadow: 0 12px 35px rgba(255, 55, 0, 0.856);
 }
 
 .card-img {
   width: 100%;
+  height:50%;
+
   
 
-  object-fit: cover;
+  /* object-fit: cover; */
 }
 
 .card-content {
@@ -298,16 +302,18 @@ button{
 }
 
 .card-title {
-  font-size: 1.4rem;
+  font-family: "Shadows Into Light", cursive;
+  font-size: 1.5rem;
   margin-bottom: 10px;
   font-weight: 600;
-  color: #00ff99; 
-  text-shadow: 0 0 8px rgba(0, 255, 150, 0.7);
+  color: #6cec27c4; 
+  text-shadow: 0 0 8px rgba(119, 255, 0, 0.7);
 }
 
 .card-desc {
-  font-family: "Shadows Into Light", cursive;
-  font-size: 1.45rem;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  
+  font-size: 1rem;
   margin-bottom: 15px;
   color: #dcdcdc;
   line-height: 1.5;
@@ -356,7 +362,7 @@ button{
 }
 
 .footer-brand .logo span {
-  color: #1db954;
+ color: yellow;
   position: relative;
 }
 
