@@ -8,7 +8,12 @@ import session from "express-session";
 import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2";
 import flash from "connect-flash";
-import { blogCategories,blog_data } from "./assets.js";
+import ImageKit from "imagekit";
+import multer from 'multer';
+
+const upload = multer({ dest: 'uploads/' });
+
+
 
 
 
@@ -19,6 +24,13 @@ app.use(express.static("public"));
 
 env.config();
 const saltRounds = 10;
+
+var imagekit = new ImageKit({
+    publicKey : process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey : process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint : process.env.IMAGEKIT_URL_END_POINT,
+});
+
 
 
 const db = new pg.Client({
@@ -42,43 +54,77 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var newdata = [];
 
 app.use(flash());
-// app.get("/",(req,res)=>{
 
+
+
+// app.get("/",(req,res)=>{
 
 //   res.render("index.ejs",[blogCategories,blog_data]);
 
 // });
-// app.get("/post/:postId",(req,res)=>{
-//   var postid=req.params.postId;
+async function fetch_blog_data(){
+  var blog_data = await db.query("SELECT * FROM posts ORDER BY id ASC ");
+  return blog_data.rows;
+}
 
-//   var post=blog_data.filter((post)=>post._id===postid);
-//   var title=post[0].title;
-//   var description=post[0].description;
-//   var comments=null;
-//   res.render('post.ejs',{postId:postid,title,description,comments})
-  
-  
+async function fetch_comments_data(){
+  var comments_data = await db.query("SELECT * FROM comments ORDER BY id ASC ");
+  return comments_data.rows;
+}
+
+var blog_data=await fetch_blog_data();
+var comments_data=await fetch_comments_data();
 
 
 
-// });
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   if (req.isAuthenticated()) {
-    res.render("index.ejs",[blogCategories,blog_data]);
+    res.render("index.ejs",{blog_data:blog_data});
+  } else {
+    res.redirect("/login");
+  }
+});
+app.get("/search", async (req, res) => {
+  if (req.isAuthenticated()) {
+    var category=req.query.type;
+    var new_blog_data=blog_data.filter((blog)=>blog.category.toLowerCase()===category.toLowerCase());
+    if(new_blog_data.length>0){
+      res.render("index.ejs",{blog_data:new_blog_data});
+    }else{
+      res.render("index.ejs",{blog_data:blog_data,err:"!!Blog Category Not Found"});
+    }
   } else {
     res.redirect("/login");
   }
 });
 
+
+
+app.get("/admin",(req,res)=>{
+  if (req.isAuthenticated()) {
+    
+    res.render('admin.ejs', { activeTab: 'dashboard' });
+  } else {
+    res.redirect("/login");
+  }
+
+});
+app.get("/admin/create",(req,res)=>{
+  if (req.isAuthenticated()) {
+    
+    res.render('admin.ejs', { activeTab: 'create' });
+  } else {
+    res.redirect("/login");
+  }
+
+
+});
+
 app.get("/login", (req, res) => {
- 
-  
   res.render("login.ejs",{ message: req.flash("error") });
 }); 
 
-app.get("/compose", (req, res) => {
-  res.render("compose.ejs");
-});
+
 app.get("/auth/google", passport.authenticate("google", {
   scope: ["profile", "email"],
 }));
@@ -91,6 +137,45 @@ app.get("/auth/google/heisenBlog",passport.authenticate("google",{
 app.get("/register", (req, res) => {
   res.render("register.ejs", { message: req.flash("error") });
 });
+
+app.get("/post/:postId",(req,res)=>{
+  if (req.isAuthenticated()) {
+    var postid=req.params.postId;
+
+  var post=blog_data.filter((post)=>post.id===postid);
+  // var title=post[0].title;
+  // var description=post[0].description;
+  // console.log(comments_data);
+  var comments=comments_data.filter((comment)=>(comment.blog_id===postid ));
+  
+  
+  res.render('post.ejs',{postId:postid,post:post[0],comments:comments});
+  } else {
+    res.redirect("/login");
+  }
+}
+
+
+);
+app.post("/post/:postId/comment",async (req,res)=>{
+  if (req.isAuthenticated()) {
+    var postid=req.params.postId;
+    console.log(req.body);
+
+
+    var result =await db.query("INSERT INTO comments(blog_id,name,content,createdat) VALUES($1,$2,$3,NOW()) RETURNING *",[postid,req.body.name,req.body.comment]);
+    comments_data.push(result.rows);
+    
+    res.redirect(`/post/${postid}`);
+  
+
+  
+  } else {
+    res.redirect("/login");
+  }
+
+  
+})
 app.post("/register", async (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
@@ -133,7 +218,7 @@ app.post("/login",passport.authenticate("local",{
   successRedirect: "/",
   failureRedirect: "/login",
   failureFlash: true,
-
+  
 }));
 app.post("/add", (req, res) => {
   const newpost = {
@@ -144,14 +229,6 @@ app.post("/add", (req, res) => {
   data.push(newpost);
   res.redirect("/");
 
-});
-app.get("/posts/:postName", (req, res) => {
-  const requestedTitle = req.params.postName;
-  data.forEach((post) => {
-    if (post.title === requestedTitle) {
-      res.render("post.ejs", { postTitle: post.title, postContent: post.content });
-    }
-  });
 });
 
 
@@ -194,11 +271,11 @@ passport.use("google", new GoogleStrategy({
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "/auth/google/heisenBlog",
 }, async (accessToken, refreshToken, profile, cb) => {
-  console.log(profile);
+  // console.log(profile);
   try {
     const result = await db.query("SELECT * FROM users WHERE email = $1", [profile.email]);
     if (result.rows.length === 0) {
-      const newUser = await db.query("INSERT INTO users (email, password) VALUES ($1, $2)", [profile.email, "google"]);
+      const newUser = await db.query("INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *", [profile.email, "google"]);
       return cb(null, newUser.rows[0]);
     }
     else {

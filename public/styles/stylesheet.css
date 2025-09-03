@@ -138,7 +138,7 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 0 20px;
+  /* padding: 0 20px; */
   overflow: hidden;
   background-color: #000000d4;
   background-blend-mode: screen;
@@ -167,6 +167,49 @@ body {
 .hero-content {
   position: relative;
   z-index: 1;
+ 
+  
+}
+.hero h1{
+  transform-style: preserve-3d;
+    animation: blinker 1.5s ease-in-out infinite;
+    animation-delay: 1s inherit;
+    opacity: 0;
+  
+}
+
+
+
+@keyframes blinker{
+    0% {
+        opacity: 0;
+        /* transform: translateX(100px); */
+        
+    }
+    15%{
+      opacity: 0.7;
+    }
+    30% {
+        opacity: 0.5;
+    }
+    45%{
+      opacity: 0.3;
+    }
+    67% {
+        opacity: 1;
+        /* transform: scale(1.2); */
+       
+        
+    }
+    79%{
+      opacity: 0.8;
+    }
+    90%{
+      opacity: 1;
+    }
+    100%{
+      opacity: 0.7;
+    }
 }
 
 .hero h1 {

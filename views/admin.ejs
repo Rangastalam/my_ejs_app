@@ -1,0 +1,257 @@
+<%- include('partials/header.ejs') %>
+  <style>
+    body {
+      background: #181c24;
+      margin: 0;
+      padding: 0;
+      color: #eaf6ff;
+      font-family: 'Roboto', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .admin-dashboard-wrapper {
+      display: flex;
+      min-height: 90vh;
+      width: 100vw;
+    }
+
+    .admin-sidebar {
+      width: 240px;
+      background: #23283a;
+      color: #eaf6ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 0;
+      box-shadow: 2px 0 12px #0002;
+    }
+
+    .admin-logo {
+      font-family: "Shadows Into Light", cursive;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 36px;
+      letter-spacing: 2px;
+      color: #51ff00;
+    }
+
+    .admin-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .admin-nav-link {
+      color: #eaf6ff;
+      text-decoration: none;
+      font-size: 1.08rem;
+      font-weight: 500;
+      padding: 10px 32px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+      width: 80%;
+      text-align: center;
+    }
+
+    .admin-nav-link.active {
+      background: #b7e4c7;
+      color: #23283a;
+    }
+
+    .admin-main-content {
+      flex: 1;
+      background: #181c24;
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-height: 90vh;
+    }
+
+    .admin-content-header h1 {
+      font-size: 2rem;
+      color: #b7e4c7;
+      margin-bottom: 12px;
+    }
+
+    .admin-content-header p {
+      font-size: 1.1rem;
+      color: #eaf6ff;
+      margin-bottom: 24px;
+    }
+
+    .create-blog-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 18px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .blog-input {
+      font-size: 1.1rem;
+      padding: 20px;
+      border-radius: 6px;
+      border: 1px solid #b7e4c7;
+      background: #23283a;
+      color: #eaf6ff;
+      outline: none;
+    }
+
+
+
+    .blog-btn {
+      background: #b7e4c7;
+      color: #23283a;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .blog-btn:hover {
+      background: #23283a;
+      color: #b7e4c7;
+      border: 1px solid #b7e4c7;
+    }
+
+    .generate_button {
+      background-color: #597b49;
+
+      color: white;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      margin-left: 300px;
+
+
+    }
+
+    .blog-description {
+      border: 3px #eaf6ff solid;
+      min-width: 350px;
+      min-height: fit-content;
+      margin: 30px 0px;
+      padding: 0px;
+      
+
+    }
+
+    @media (max-width: 900px) {
+      .admin-dashboard-wrapper {
+        flex-direction: column;
+      }
+
+      .admin-sidebar {
+        width: 100vw;
+        flex-direction: row;
+        justify-content: center;
+        padding: 18px 0;
+        box-shadow: none;
+      }
+
+      .admin-nav {
+        flex-direction: row;
+        gap: 12px;
+        width: auto;
+      }
+
+      .admin-nav-link {
+        width: auto;
+        padding: 8px 18px;
+      }
+
+      .admin-main-content {
+        padding: 24px 10vw;
+      }
+    }
+  </style>
+
+
+  <div class="admin-dashboard-wrapper">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">Your <span style="color: red;">MethLab</span></div>
+      <nav class="admin-nav">
+        <a href="/admin/create" class="admin-nav-link<%= (activeTab === 'create') ? ' active' : '' %>">Create Blog</a>
+        <a href="/admin" class="admin-nav-link<%= (activeTab === 'dashboard') ? ' active' : '' %>">Dashboard</a>
+      </nav>
+    </aside>
+    <main class="admin-main-content">
+      <% if (activeTab==='dashboard' ) { %>
+        <div class="admin-content-header">
+          <h1>Welcome, Admin!</h1>
+          <p>This is your dashboard. Use the sidebar to create a new blog or view your dashboard.</p>
+        </div>
+        <!-- Dashboard content goes here -->
+        <% } else if (activeTab==='create' ) { %>
+          <div class="admin-content-header">
+            <h1>Create a New Blog</h1>
+            <form class="create-blog-form" onsubmit="async(e)=>{e.preventDefault();}" action="/admin/create"
+              method="POST">
+              <p>Upload thumbnail</p>
+
+              <img id="upload_area" style="width: 150px; cursor: pointer;"
+                src="/Assets/QuickBlog-Assets/upload_area.svg" alt="" />
+              <input type="file" id="fileInput" accept="image/*" hidden />
+
+
+
+
+          </div>
+
+          <input type="text" name="title" placeholder="Blog Title" required class="blog-input"
+            style="margin:20px 0px;" />
+          <div class="blog-description">
+            <div id="editor" style="min-width: 350px; height: 450px; border: none ;">
+              <h2>Start Here</h2>
+              <p>Preset build with <code>snow</code> theme, and some common formats.</p>
+
+
+            </div>
+            <button class="generate_button" onclick="">Generate with AI</button>
+          </div>
+          <button type="submit" class="blog-btn">Create Blog</button>
+          </form>
+  </div>
+  <% } %>
+    </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+    <script>
+      //quill initialization
+      const quill = new Quill('#editor', {
+        theme: 'snow'
+      });
+
+      //generate button sccript
+      const generate=function(){
+
+      };
+
+      //upload_area manipulation
+      document.querySelector('#upload_area').onclick = function () {
+        document.getElementById('fileInput').click();
+      };
+      document.getElementById('fileInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+
+            const img = document.getElementById('upload_area');
+
+            img.src = e.target.result;
+
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    </script>
+    <%- include('partials/footer.ejs') %>

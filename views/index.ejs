@@ -13,7 +13,7 @@
     <p >Better Call This App</p>
     
     <form class="search-form" action="/search" method="GET">
-      <input type="text" name="genre" placeholder="Say MY Name" >
+      <input type="text" name="type" placeholder="Say MY Name" >
       <button type="submit">Search</button>
   </div>
   
@@ -23,13 +23,17 @@
 
 </section>
 <section class="content" >
+  <% if (locals.err) { %>
+    <H1 style="font-size: 2rem;font-weight: bolder; font-family: 'Shadows Into Light', cursive; color: rgb(255, 0, 0);"><%= err %></H1>
+   
+  <% } %>
   
   <div class="card-container" >
-    <% locals[1].forEach(element => { %>
-      <a href="/post/<%=element._id %>" style="text-decoration: none;">
+    <% blog_data.forEach(element => { %>
+      <a href="/post/<%=element.id %>" style="text-decoration: none;">
       <div class="card" >
 
-        <img class="card-img" src=<%= element.image %>
+        <img class="card-img" src=<%= element.image_path %>>
         <span><%=element.category%></span>
         <div class="card-content" >
           <h5 class="card-title"><%=element.title %></h5>
