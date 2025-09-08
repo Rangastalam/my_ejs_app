@@ -10,6 +10,9 @@ import GoogleStrategy from "passport-google-oauth2";
 import flash from "connect-flash";
 import ImageKit from "imagekit";
 import multer from 'multer';
+import fs from 'fs';
+import { error } from "console";
+import { GoogleGenAI } from "@google/genai";
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -26,9 +29,9 @@ env.config();
 const saltRounds = 10;
 
 var imagekit = new ImageKit({
-    publicKey : process.env.IMAGEKIT_PUBLIC_KEY,
-    privateKey : process.env.IMAGEKIT_PRIVATE_KEY,
-    urlEndpoint : process.env.IMAGEKIT_URL_END_POINT,
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_END_POINT,
 });
 
 
@@ -46,6 +49,7 @@ db.connect();
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true, cookie: { maxAge: 24 * 60 * 60 * 1000 } }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.json()); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -62,36 +66,37 @@ app.use(flash());
 //   res.render("index.ejs",[blogCategories,blog_data]);
 
 // });
-async function fetch_blog_data(){
+async function fetch_blog_data() {
   var blog_data = await db.query("SELECT * FROM posts ORDER BY id ASC ");
   return blog_data.rows;
 }
 
-async function fetch_comments_data(){
+async function fetch_comments_data() {
   var comments_data = await db.query("SELECT * FROM comments ORDER BY id ASC ");
   return comments_data.rows;
 }
 
-var blog_data=await fetch_blog_data();
-var comments_data=await fetch_comments_data();
+var blog_data = await fetch_blog_data();
+var comments_data = await fetch_comments_data();
+
 
 
 
 app.get("/", async (req, res) => {
   if (req.isAuthenticated()) {
-    res.render("index.ejs",{blog_data:blog_data});
+    res.render("index.ejs", { blog_data: blog_data });
   } else {
     res.redirect("/login");
   }
 });
 app.get("/search", async (req, res) => {
   if (req.isAuthenticated()) {
-    var category=req.query.type;
-    var new_blog_data=blog_data.filter((blog)=>blog.category.toLowerCase()===category.toLowerCase());
-    if(new_blog_data.length>0){
-      res.render("index.ejs",{blog_data:new_blog_data});
-    }else{
-      res.render("index.ejs",{blog_data:blog_data,err:"!!Blog Category Not Found"});
+    var category = req.query.type;
+    var new_blog_data = blog_data.filter((blog) => blog.category.toLowerCase() === category.toLowerCase());
+    if (new_blog_data.length > 0) {
+      res.render("index.ejs", { blog_data: new_blog_data });
+    } else {
+      res.render("index.ejs", { blog_data: blog_data, err: "!!Blog Category Not Found" });
     }
   } else {
     res.redirect("/login");
@@ -100,19 +105,19 @@ app.get("/search", async (req, res) => {
 
 
 
-app.get("/admin",(req,res)=>{
+app.get("/admin", (req, res) => {
   if (req.isAuthenticated()) {
-    
+
     res.render('admin.ejs', { activeTab: 'dashboard' });
   } else {
     res.redirect("/login");
   }
 
 });
-app.get("/admin/create",(req,res)=>{
+app.get("/admin/create", (req, res) => {
   if (req.isAuthenticated()) {
-    
-    res.render('admin.ejs', { activeTab: 'create' });
+
+    res.render('admin.ejs', { activeTab: 'create',messages: { success: req.flash("success"), error: req.flash("error") } });
   } else {
     res.redirect("/login");
   }
@@ -121,35 +126,37 @@ app.get("/admin/create",(req,res)=>{
 });
 
 app.get("/login", (req, res) => {
-  res.render("login.ejs",{ message: req.flash("error") });
-}); 
+  res.render("login.ejs", { message: req.flash("error") });
+});
 
 
 app.get("/auth/google", passport.authenticate("google", {
   scope: ["profile", "email"],
 }));
 
-app.get("/auth/google/heisenBlog",passport.authenticate("google",{
-  successRedirect:"/",
-  failureRedirect:"/login",
+app.get("/auth/google/heisenBlog", passport.authenticate("google", {
+  successRedirect: "/",
+  failureRedirect: "/login",
 }));
 
 app.get("/register", (req, res) => {
   res.render("register.ejs", { message: req.flash("error") });
 });
 
-app.get("/post/:postId",(req,res)=>{
+app.get("/post/:postId", (req, res) => {
   if (req.isAuthenticated()) {
-    var postid=req.params.postId;
+    var postid = req.params.postId;
+    console.log(postid);
 
-  var post=blog_data.filter((post)=>post.id===postid);
-  // var title=post[0].title;
-  // var description=post[0].description;
-  // console.log(comments_data);
-  var comments=comments_data.filter((comment)=>(comment.blog_id===postid ));
-  
-  
-  res.render('post.ejs',{postId:postid,post:post[0],comments:comments});
+    var post = blog_data.filter((blog) => blog.id == postid);
+    // var title=post[0].title;
+    // var description=post[0].description;
+    // console.log(comments_data);
+    var comments = comments_data.filter((comment) => (comment.blog_id == postid));
+    
+
+
+    res.render('post.ejs', { postId: postid, post: post[0], comments: comments });
   } else {
     res.redirect("/login");
   }
@@ -157,24 +164,110 @@ app.get("/post/:postId",(req,res)=>{
 
 
 );
-app.post("/post/:postId/comment",async (req,res)=>{
+app.post("/post/:postId/comment", async (req, res) => {
   if (req.isAuthenticated()) {
-    var postid=req.params.postId;
+    var postid = req.params.postId;
     console.log(req.body);
 
 
-    var result =await db.query("INSERT INTO comments(blog_id,name,content,createdat) VALUES($1,$2,$3,NOW()) RETURNING *",[postid,req.body.name,req.body.comment]);
+    var result = await db.query("INSERT INTO comments(blog_id,name,content,createdat) VALUES($1,$2,$3,NOW()) RETURNING *", [postid, req.body.name, req.body.comment]);
     comments_data.push(result.rows);
-    
-    res.redirect(`/post/${postid}`);
-  
 
-  
+    res.redirect(`/post/${postid}`);
+
+
+
   } else {
     res.redirect("/login");
   }
 
-  
+
+});
+
+// generate with AI route
+
+app.post('/api/generate', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { topic } = req.body;
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: `${topic} generate a blog content for this topic in html with out the boilerplate, only the html tags like h1,lists,h2 etc and not also in the section/article tag`,
+    });
+    let generatedText = response?.text;
+    
+    if (!generatedText && response?.candidates?.length > 0) {
+      generatedText = response.candidates[0]?.content?.parts[0]?.text;
+    }
+    if (!generatedText) generatedText = "<p>No content generated.</p>";
+    // console.log(generatedText);
+    res.json({ generatedText });
+  } catch (err) {
+    res.status(500).json({ error: 'AI generation failed.' });
+  }
+});
+app.post("/admin/create", upload.single('image'), async (req, res) => {
+
+  if (req.isAuthenticated()) {
+    const imagefile = req.file;
+    const fileBuffer = fs.readFileSync(imagefile.path);
+
+    imagekit.upload({
+      file: fileBuffer,
+      fileName: imagefile.originalname,
+      folder: "/blogs"
+    }, async (error, result) => {
+      if (error) {
+        req.flash("error", "Blog not uploaded error!");
+        res.redirect('admin/create');
+
+      } else {
+        const optimizedurl = imagekit.url({
+          path: result.filePath,
+          transformation: [
+            { quality: 'auto' },
+            { format: 'webp' },
+            { width: '1000' }
+          ]
+        });
+        const blog=req.body;
+        // try{
+          const resul=await db.query(`INSERT INTO posts values($1,$2,$3,$4,NOW(),${req.user.id},$5 ) RETURNING *`,[blog.title,blog.description,blog.category,optimizedurl,blog.name]);
+          blog_data.push(resul.rows[0]);
+          req.flash("success", "Blog uploaded successfully!");
+        res.redirect('/admin/create');
+        // }
+        // }catch(err){
+        //   req.flash("error", "Blog not uploaded server error!");
+        //   res.redirect('/admin/create');
+
+        // }
+        
+        
+
+      }
+    });
+
+
+
+
+
+
+  } else {
+    res.redirect("/login");
+  }
+
+
+
+
+
+
+
+
+
 })
 app.post("/register", async (req, res) => {
   const email = req.body.username;
@@ -214,11 +307,11 @@ app.post("/register", async (req, res) => {
     res.redirect("/register");
   }
 });
-app.post("/login",passport.authenticate("local",{
+app.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: "/login",
   failureFlash: true,
-  
+
 }));
 app.post("/add", (req, res) => {
   const newpost = {
@@ -234,36 +327,36 @@ app.post("/add", (req, res) => {
 
 passport.use("local", new Strategy(async function verify(username, password, cb) {
   try {
-      const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
-        username,
-      ]);
-      if (result.rows.length > 0) {
-        // console.log("User found:", result.rows[0]);
-        const user = result.rows[0];
-        const storedHashedPassword = user.password;
-        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-          if (err) {
-            //Error with password check
-            console.error("Error comparing passwords:", err);
-            return cb("Server error");
+    const result = await db.query("SELECT * FROM users WHERE email = $1 ", [
+      username,
+    ]);
+    if (result.rows.length > 0) {
+      // console.log("User found:", result.rows[0]);
+      const user = result.rows[0];
+      const storedHashedPassword = user.password;
+      bcrypt.compare(password, storedHashedPassword, (err, valid) => {
+        if (err) {
+          //Error with password check
+          console.error("Error comparing passwords:", err);
+          return cb("Server error");
+        } else {
+          if (valid) {
+            //Passed password check
+            return cb(null, user);
           } else {
-            if (valid) {
-              //Passed password check
-              return cb(null, user);
-            } else {
-              //Did not pass password check
-              return cb(null,false, { message: "Incorrect username or password." });
-            }
+            //Did not pass password check
+            return cb(null, false, { message: "Incorrect username or password." });
           }
-        });
-      } else {
+        }
+      });
+    } else {
 
-        return cb(null, false, { message: "user not found try registering first" });
-      }
-    } catch (err) {
-      cb("Server error: " );
-      console.log(err);
+      return cb(null, false, { message: "user not found try registering first" });
     }
+  } catch (err) {
+    cb("Server error: ");
+    console.log(err);
+  }
 
 }));
 passport.use("google", new GoogleStrategy({

@@ -1,33 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>Register | StoryLine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stylish Login</title>
   <link rel="stylesheet" href="/styles/login.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap">
 </head>
 
 <body>
-  <div class="container">
-    <div class="login-box">
-      <h1 class="logo">Heisen<span>Blog</span></h1>
-      <form action="/register" method="POST">
-        <div class="input-group">
-          <label for="email">Email</label>
-          <input type="email" name="username" required>
-        </div>
-        <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" name="password" required>
-        </div>
-        <button type="submit" class="login-btn">Let's Cook</button>
-        <% if (message && message.length> 0) { %>
-          <div id="error-message" style="color:red; margin-top:10px;">
-            <%= message[0] %>
-          </div>
-          <% } %>
+  <div id="particles-js"></div>
+  <video autoplay loop muted playsinline class="smoke-bg" >
+      <source src="\Assets\Smoke_7___40s___4k_res.mp4" type="video/mp4" />
+    </video>
 
-            <a href="/auth/google">
+
+  <div class="container">
+    
+    <div class="form-box">
+      <h1 class="logo">Heisen<span>Blog</span></h1>
+      
+            <a href="/auth/google" style="text-decoration: none;">
               <button type="button" class="google-btn">
                 <svg width="30px" height="30px" viewBox="0 0 32 32" data-name="Layer 1" id="Layer_1"
                   xmlns="http://www.w3.org/2000/svg" fill="#000000">
@@ -49,22 +45,125 @@
                     <path d="M29.25,15v1L27,19.5H16.5V14H28.25A1,1,0,0,1,29.25,15Z" fill="#43f478"></path>
                   </g>
                 </svg>
-                <!-- <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo"> -->
+
                 Sign in with Google
               </button>
             </a>
 
-            <p class="signup-text">Don't have an account? <a href="/register">Sign up</a></p>
+            
       </form>
+      
 
-    </div>
-  </div>
-  <div class="smoke-background">
-    <div class="smoke smoke1"></div>
-    <div class="smoke smoke2"></div>
-    <div class="smoke smoke3"></div>
-  </div>
-
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      particlesJS('particles-js', {
+        "particles": {
+          "number": {
+            "value": 100,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": "#00ff3c"
+          },
+          "shape": {
+            "type": "circle",
+            "stroke": {
+              "width": 0,
+              "color": "#000000"
+            },
+            "polygon": {
+              "nb_sides": 5
+            }
+          },
+          "opacity": {
+            "value": 0.8,
+            "random": true,
+            "anim": {
+              "enable": true,
+              "speed": 1,
+              "opacity_min": 0.4,
+              "sync": false
+            }
+          },
+          "size": {
+            "value": 5,
+            "random": true,
+            "anim": {
+              "enable": true,
+              "speed": 2,
+              "size_min": 1,
+              "sync": false
+            }
+          },
+          "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#00ff3c",
+            "opacity": 0.6,
+            "width": 1.5
+          },
+          "move": {
+            "enable": true,
+            "speed": 2,
+            "direction": "none",
+            "random": true,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false,
+            "attract": {
+              "enable": true,
+              "rotateX": 600,
+              "rotateY": 1200
+            }
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": true,
+              "mode": "repulse"
+            },
+            "onclick": {
+              "enable": true,
+              "mode": "push"
+            },
+            "resize": true
+          },
+          "modes": {
+            "grab": {
+              "distance": 400,
+              "line_linked": {
+                "opacity": 1
+              }
+            },
+            "bubble": {
+              "distance": 400,
+              "size": 40,
+              "duration": 2,
+              "opacity": 8,
+              "speed": 3
+            },
+            "repulse": {
+              "distance": 100,
+              "duration": 0.4
+            },
+            "push": {
+              "particles_nb": 4
+            },
+            "remove": {
+              "particles_nb": 2
+            }
+          }
+        },
+        "retina_detect": true
+      });
+    });
+  </script>
 </body>
 
 </html>

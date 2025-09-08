@@ -67,8 +67,9 @@ body {
     padding: 30px;
     
     transform-style: preserve-3d;
-    animation: formEntrance 1.5s  cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
     
+    animation: formEntrance 1.5s  cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+    /* animation-delay: 1s; */
     opacity: 0;
     transform: rotateX(20deg) translateY(100px);
     box-shadow: 0 0 20px rgb(122, 252, 1),

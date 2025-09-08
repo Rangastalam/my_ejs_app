@@ -9,6 +9,7 @@
       overflow-x: hidden;
     }
 
+
     .admin-dashboard-wrapper {
       display: flex;
       min-height: 90vh;
@@ -135,12 +136,32 @@
 
     .blog-description {
       border: 3px #eaf6ff solid;
-      min-width: 350px;
-      min-height: fit-content;
+      min-width: 400px;
+      max-width: 420px;
+      min-height: 450px;
       margin: 30px 0px;
       padding: 0px;
-      
 
+
+    }
+
+    .loader {
+      border: 6px solid #eaf6ff;
+      border-top: 6px solid #51ff00;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     @media (max-width: 900px) {
@@ -171,6 +192,10 @@
         padding: 24px 10vw;
       }
     }
+
+    option {
+      background-color: #181c24;
+    }
   </style>
 
 
@@ -190,50 +215,115 @@
         </div>
         <!-- Dashboard content goes here -->
         <% } else if (activeTab==='create' ) { %>
-          <div class="admin-content-header">
-            <h1>Create a New Blog</h1>
-            <form class="create-blog-form" onsubmit="async(e)=>{e.preventDefault();}" action="/admin/create"
-              method="POST">
-              <p>Upload thumbnail</p>
-
-              <img id="upload_area" style="width: 150px; cursor: pointer;"
-                src="/Assets/QuickBlog-Assets/upload_area.svg" alt="" />
-              <input type="file" id="fileInput" accept="image/*" hidden />
-
-
-
-
-          </div>
-
-          <input type="text" name="title" placeholder="Blog Title" required class="blog-input"
-            style="margin:20px 0px;" />
-          <div class="blog-description">
-            <div id="editor" style="min-width: 350px; height: 450px; border: none ;">
-              <h2>Start Here</h2>
-              <p>Preset build with <code>snow</code> theme, and some common formats.</p>
-
-
+          <% if (messages.success.length>0) { %>
+            <div class="alert alert-success" style="background: rgb(132, 121, 59); display: block; ">
+              <%= messages.success %>
             </div>
-            <button class="generate_button" onclick="">Generate with AI</button>
-          </div>
-          <button type="submit" class="blog-btn">Create Blog</button>
-          </form>
+            <% } %>
+              <% if (messages.error.length>0) { %>
+                <div class="alert alert-danger " style="background: rgb(132, 121, 59); display: block;">
+                  <%= messages.error %>
+                </div>
+                <% } %>
+                  <div class="admin-content-header">
+                    <h1>Create a New Blog</h1>
+                    <form class="create-blog-form" id="blog-form" action="/admin/create" method="POST"
+                      enctype="multipart/form-data">
+                      <p>Upload thumbnail</p>
+
+                      <img id="upload_area" style="width: 150px; cursor: pointer;"
+                        src="/Assets/QuickBlog-Assets/upload_area.svg" alt="" />
+                      <input type="file" id="fileInput" name="image" accept="image/*" hidden required/>
+
+
+
+
+                  </div>
+
+                  <input type="text" name="title" placeholder="Blog Title" required class="blog-input"
+                    style="margin:20px 0px;" />
+                  <input type="text" name="name" placeholder="Enter your Name" required class="blog-input"
+                    style="margin:20px 0px;" maxlength="25" />
+                  <label for="category">Choose a category:</label>
+                  <select name="category" id="category" form="blog-form"
+                    style="padding: 15px; width: 250px; background-color: #2f60c01f; color:wheat; border: 1px solid white; margin-top: 5px;">
+                    <option value="Technology" selected>Technology</option>
+                    <option value="Startup">Startup</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Story">Story</option>
+                  </select>
+
+                  <br><br>
+                  <textarea name="description" style="display: none;" ></textarea>
+                  <div class="blog-description">
+                    <div id="editor" style="min-width: 350px; height: 450px; border: none ; ">
+
+
+
+                    </div>
+                    <button class="generate_button" id="generateBtn"
+                      style="margin-bottom: 5px; margin-right: 5px;">Generate with AI</button>
+                  </div>
+                  <button type="submit" class="blog-btn">Create Blog</button>
+
+                  </form>
   </div>
   <% } %>
     </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+
+
 
     <script>
+
       //quill initialization
       const quill = new Quill('#editor', {
         theme: 'snow'
       });
+      // generate_with_AI button script
+      document.querySelector('.generate_button').addEventListener('click', async function (e) {
+        e.preventDefault();
+        const generateBtn = document.querySelector('.generate_button');
+        const descDiv = document.querySelector('.blog-description');
+        const quillEditor = document.querySelector('#editor');
 
-      //generate button sccript
-      const generate=function(){
+        const topic = document.querySelector('input[name="title"]').value;
+        if (!topic) {
+          document.querySelector('#editor').innerHTML = "<h2>Type a topic for the blog</h2>";
+          return;
+        }
+        if (generateBtn.disabled) return;
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating...';
+        // quillEditor.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;height:100%; width:100%"><div class='loader'></div><span style='margin-left:16px;'>Generating blog post...</span></div>`;
+        try {
+          const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+          });
+          const data = await response.json();
+          let html = data.generatedText;
+          // const html = marked.parse(text);
+          console.log('HTML to paste:', html);
+          // quillEditor.removeChild(quillEditor.firstChild);
+          // quill.setContents([{ insert: 'Test Quill content\n' }]);
+          quill.root.innerHTML = html;
 
-      };
+        } catch (err) {
+          descDiv.innerHTML = `<div style='color:red;'>Error generating blog post. Please try again.</div>`;
+        }
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate with AI';
+      });
+
+
+
+
+
 
       //upload_area manipulation
       document.querySelector('#upload_area').onclick = function () {
@@ -253,5 +343,26 @@
           reader.readAsDataURL(file);
         }
       });
+
+      document.querySelector('.create-blog-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.querySelector('.blog-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting...";
+
+        const html = quill.root.innerHTML;
+        document.querySelector('textarea[name="description"]').value = html;
+
+        if (!html || html === '<p><br></p>') {
+            alert('Blog content cannot be empty.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Create Blog";
+            return;
+        }
+
+        e.target.submit();
+    });
+
     </script>
     <%- include('partials/footer.ejs') %>

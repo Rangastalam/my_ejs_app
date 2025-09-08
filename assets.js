@@ -1,6 +1,7 @@
 
 export const blogCategories = ['All', 'Technology', 'Startup', 'Lifestyle', 'Finance']
 
+
 export const blog_data = [
     {
         "_id": "6805ee7dd8f584af5da78d37",
