@@ -154,6 +154,19 @@
       animation: spin 1s linear infinite;
     }
 
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    #titles {
+      border-radius: 20px;
+
+      width: fit-content;
+
+    }
+
     @keyframes spin {
       0% {
         transform: rotate(0deg);
@@ -211,9 +224,51 @@
       <% if (activeTab==='dashboard' ) { %>
         <div class="admin-content-header">
           <h1>Welcome, Admin!</h1>
-          <p>This is your dashboard. Use the sidebar to create a new blog or view your dashboard.</p>
+          <% if (messages.success.length>0) { %>
+            <div class="alert alert-success" style="background: rgb(132, 121, 59); display: block; margin: 50px;">
+              <%= messages.success %>
+            </div>
+            <% } %>
+              <% if (messages.error.length>0) { %>
+                <div class="alert alert-danger " style="background: rgb(132, 121, 59); display: block; margin: 50px;">
+                  <%= messages.error %>
+                </div>
+                <% } %>
+
+          <div class="menu">
+            <% user_blogs.forEach(element=> { %>
+
+              <div class="title-div">
+                <div id="titles" style="height: 100px;">
+
+
+                  <h5 class="card-title"
+                    style="padding: 20px; margin: 0; background-color: rgb(94, 129, 161); border-radius:15px ; display: inline-block;">
+                    <span><img src="./Assets/QuickBlog-Assets/blog_icon.png" /></span>
+                    <%=element.title %>
+                  </h5>
+
+                  <a href="/admin/<%=element.id%>/delete" onclick="return confirm('Are you sure you want to delete this post?');">
+                    <span style="width: 100px; margin: 10px; cursor: pointer;"><img src="/Assets/QuickBlog-Assets/delete.svg"
+                        style="width: 50px;" /></span>
+                  </a>
+                 
+
+
+
+
+
+                </div>
+              </div>
+
+              <% }) %>
+
+
+          </div>
+
+
         </div>
-        <!-- Dashboard content goes here -->
+
         <% } else if (activeTab==='create' ) { %>
           <% if (messages.success.length>0) { %>
             <div class="alert alert-success" style="background: rgb(132, 121, 59); display: block; ">
@@ -233,7 +288,7 @@
 
                       <img id="upload_area" style="width: 150px; cursor: pointer;"
                         src="/Assets/QuickBlog-Assets/upload_area.svg" alt="" />
-                      <input type="file" id="fileInput" name="image" accept="image/*" hidden required/>
+                      <input type="file" id="fileInput" name="image" accept="image/*" hidden required />
 
 
 
@@ -255,7 +310,7 @@
                   </select>
 
                   <br><br>
-                  <textarea name="description" style="display: none;" ></textarea>
+                  <textarea name="description" style="display: none;"></textarea>
                   <div class="blog-description">
                     <div id="editor" style="min-width: 350px; height: 450px; border: none ; ">
 
@@ -268,6 +323,10 @@
                   <button type="submit" class="blog-btn">Create Blog</button>
 
                   </form>
+
+
+                  
+
   </div>
   <% } %>
     </main>
@@ -283,6 +342,9 @@
       const quill = new Quill('#editor', {
         theme: 'snow'
       });
+
+
+
       // generate_with_AI button script
       document.querySelector('.generate_button').addEventListener('click', async function (e) {
         e.preventDefault();
@@ -298,7 +360,7 @@
         if (generateBtn.disabled) return;
         generateBtn.disabled = true;
         generateBtn.textContent = 'Generating...';
-        // quillEditor.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;height:100%; width:100%"><div class='loader'></div><span style='margin-left:16px;'>Generating blog post...</span></div>`;
+        // quill.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;height:100%; width:100%"><div class='loader'></div><span style='margin-left:16px;'>Generating blog post...</span></div>`;
         try {
           const response = await fetch('/api/generate', {
             method: 'POST',
@@ -344,7 +406,7 @@
         }
       });
 
-      document.querySelector('.create-blog-form').addEventListener('submit', function(e) {
+      document.querySelector('.create-blog-form').addEventListener('submit', function (e) {
         e.preventDefault();
 
         const submitBtn = document.querySelector('.blog-btn');
@@ -355,14 +417,18 @@
         document.querySelector('textarea[name="description"]').value = html;
 
         if (!html || html === '<p><br></p>') {
-            alert('Blog content cannot be empty.');
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Create Blog";
-            return;
+          alert('Blog content cannot be empty.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Create Blog";
+          return;
         }
 
         e.target.submit();
-    });
+      });
+
+
+
+
 
     </script>
     <%- include('partials/footer.ejs') %>

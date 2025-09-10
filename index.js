@@ -49,7 +49,7 @@ db.connect();
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true, cookie: { maxAge: 24 * 60 * 60 * 1000 } }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.json()); 
+app.use(express.json());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -59,7 +59,7 @@ var newdata = [];
 
 app.use(flash());
 
-
+app.use(express.json());
 
 // app.get("/",(req,res)=>{
 
@@ -78,6 +78,8 @@ async function fetch_comments_data() {
 
 var blog_data = await fetch_blog_data();
 var comments_data = await fetch_comments_data();
+var user_blogs = [];
+var comments = [];
 
 
 
@@ -107,9 +109,15 @@ app.get("/search", async (req, res) => {
 
 app.get("/admin", (req, res) => {
   if (req.isAuthenticated()) {
+    let user_id = req.user.id;
 
-    res.render('admin.ejs', { activeTab: 'dashboard' });
+    user_blogs = blog_data.filter((blog) => blog.user_id == user_id);
+    comments = comments_data.filter((comment) => comment.blog_id in user_blogs);
+
+
+    res.render('admin.ejs', { activeTab: 'dashboard', user_blogs: user_blogs, comments: comments,messages: { success: req.flash("success"), error: req.flash("error") }});
   } else {
+
     res.redirect("/login");
   }
 
@@ -117,14 +125,38 @@ app.get("/admin", (req, res) => {
 app.get("/admin/create", (req, res) => {
   if (req.isAuthenticated()) {
 
-    res.render('admin.ejs', { activeTab: 'create',messages: { success: req.flash("success"), error: req.flash("error") } });
+    res.render('admin.ejs', { activeTab: 'create', messages: { success: req.flash("success"), error: req.flash("error") } });
   } else {
     res.redirect("/login");
   }
 
 
 });
+app.get("/admin/:blog_id/delete",async(req,res)=>{
+  const blog_id=req.params.blog_id;
+   if (req.isAuthenticated()) {
+    try {
+          
+          blog_data.splice(blog_data.findIndex((blog)=>blog.id==blog_id),1);
+          user_blogs.splice(user_blogs.findIndex((blog)=>blog.id==blog_id),1);
+          const resul = await db.query(`DELETE FROM posts WHERE id=${blog_id}`);
+          console.log(resul);
+          req.flash("success", "Blog deleted successfully!");
+          res.redirect('/admin');
 
+        } catch (err) {
+          req.flash("error", "Blog not deleted server error!");
+          res.redirect('/admin');
+
+        }
+
+
+    
+  } else {
+    res.redirect("/login");
+  }
+
+})
 app.get("/login", (req, res) => {
   res.render("login.ejs", { message: req.flash("error") });
 });
@@ -153,7 +185,7 @@ app.get("/post/:postId", (req, res) => {
     // var description=post[0].description;
     // console.log(comments_data);
     var comments = comments_data.filter((comment) => (comment.blog_id == postid));
-    
+
 
 
     res.render('post.ejs', { postId: postid, post: post[0], comments: comments });
@@ -167,7 +199,7 @@ app.get("/post/:postId", (req, res) => {
 app.post("/post/:postId/comment", async (req, res) => {
   if (req.isAuthenticated()) {
     var postid = req.params.postId;
-    console.log(req.body);
+    
 
 
     var result = await db.query("INSERT INTO comments(blog_id,name,content,createdat) VALUES($1,$2,$3,NOW()) RETURNING *", [postid, req.body.name, req.body.comment]);
@@ -198,7 +230,7 @@ app.post('/api/generate', async (req, res) => {
       contents: `${topic} generate a blog content for this topic in html with out the boilerplate, only the html tags like h1,lists,h2 etc and not also in the section/article tag`,
     });
     let generatedText = response?.text;
-    
+
     if (!generatedText && response?.candidates?.length > 0) {
       generatedText = response.candidates[0]?.content?.parts[0]?.text;
     }
@@ -210,7 +242,6 @@ app.post('/api/generate', async (req, res) => {
   }
 });
 app.post("/admin/create", upload.single('image'), async (req, res) => {
-
   if (req.isAuthenticated()) {
     const imagefile = req.file;
     const fileBuffer = fs.readFileSync(imagefile.path);
@@ -222,7 +253,7 @@ app.post("/admin/create", upload.single('image'), async (req, res) => {
     }, async (error, result) => {
       if (error) {
         req.flash("error", "Blog not uploaded error!");
-        res.redirect('admin/create');
+        res.redirect('/admin/create');
 
       } else {
         const optimizedurl = imagekit.url({
@@ -233,29 +264,20 @@ app.post("/admin/create", upload.single('image'), async (req, res) => {
             { width: '1000' }
           ]
         });
-        const blog=req.body;
-        // try{
-          const resul=await db.query(`INSERT INTO posts values($1,$2,$3,$4,NOW(),${req.user.id},$5 ) RETURNING *`,[blog.title,blog.description,blog.category,optimizedurl,blog.name]);
+        const blog = req.body;
+        try {
+          const resul = await db.query(`INSERT INTO posts values($1,$2,$3,$4,NOW(),${req.user.id},$5 ) RETURNING *`, [blog.title, blog.description, blog.category, optimizedurl, blog.name]);
           blog_data.push(resul.rows[0]);
           req.flash("success", "Blog uploaded successfully!");
-        res.redirect('/admin/create');
-        // }
-        // }catch(err){
-        //   req.flash("error", "Blog not uploaded server error!");
-        //   res.redirect('/admin/create');
+          res.redirect('/admin/create');
 
-        // }
-        
-        
+        } catch (err) {
+          req.flash("error", "Blog not uploaded server error!");
+          res.redirect('/admin/create');
 
+        }
       }
     });
-
-
-
-
-
-
   } else {
     res.redirect("/login");
   }
@@ -268,7 +290,33 @@ app.post("/admin/create", upload.single('image'), async (req, res) => {
 
 
 
-})
+});
+
+app.put("/admin/edit/:blogId", upload.single('image'), async (req, res) => {
+  const blog_id = req.params.blogId;
+  const { title, name, category, description } = req.body;
+
+  try {
+    const result = await db.query(`
+      UPDATE posts SET 
+        title = $1,
+        name = $2,
+        category = $3,
+        description = $4,
+        createdat = NOW()
+      WHERE id = $5
+      RETURNING *
+    `, [title, name, category, description, blog_id]);
+
+    res.status(200).json({ success: "Blog updated successfully!", updatedBlog: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error while updating blog" });
+  }
+});
+
+
+
 app.post("/register", async (req, res) => {
   const email = req.body.username;
   const password = req.body.password;
