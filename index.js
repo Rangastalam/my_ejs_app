@@ -19,13 +19,13 @@ const upload = multer({ dest: 'uploads/' });
 
 
 
-
+env.config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.static("public"));
 
-env.config();
+
 const saltRounds = 10;
 
 var imagekit = new ImageKit({
@@ -36,14 +36,10 @@ var imagekit = new ImageKit({
 
 
 
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-}
-);
+const db = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+});
 db.connect();
 
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true, cookie: { maxAge: 24 * 60 * 60 * 1000 } }));
