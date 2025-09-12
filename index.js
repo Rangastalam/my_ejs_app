@@ -223,7 +223,7 @@ app.post('/api/generate', async (req, res) => {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `${topic} generate a blog content for this topic in html with out the boilerplate, only the html tags like h1,lists,h2 etc and not also in the section/article tag`,
+      contents: `${topic} generate a blog content for this topic (as if this might have been written by some of the breaking-bad characters with those iconic dialoges in between) in html with out the boilerplate, only the html tags like h1,lists,h2 etc and not also in the section/article tag`,
     });
     let generatedText = response?.text;
 
@@ -406,7 +406,7 @@ passport.use("local", new Strategy(async function verify(username, password, cb)
 passport.use("google", new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/google/heisenBlog",
+  callbackURL: "http://heisenblog.onrender.com/auth/google/heisenBlog",
 }, async (accessToken, refreshToken, profile, cb) => {
   // console.log(profile);
   try {
