@@ -354,7 +354,7 @@
 
         const topic = document.querySelector('input[name="title"]').value;
         if (!topic) {
-          document.querySelector('#editor').innerHTML = "<h2>Type a topic for the blog</h2>";
+          quill.innerHTML = "<h2 style ='color red'>Type a Title for the blog</h2>";
           return;
         }
         if (generateBtn.disabled) return;
