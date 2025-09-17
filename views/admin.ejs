@@ -270,6 +270,7 @@
         </div>
 
         <% } else if (activeTab==='create' ) { %>
+          <h6>Enter All The Fields to submit</h6>
           <% if (messages.success.length>0) { %>
             <div class="alert alert-success" style="background: rgb(132, 121, 59); display: block; ">
               <%= messages.success %>
@@ -310,7 +311,7 @@
                   </select>
 
                   <br><br>
-                  <textarea name="description" style="display: none;"></textarea>
+                  <textarea name="description" style="display: none;" minlength="50"></textarea>
                   <div class="blog-description">
                     <div id="editor" style="min-width: 350px; height: 450px; border: none ; ">
 
@@ -354,7 +355,7 @@
 
         const topic = document.querySelector('input[name="title"]').value;
         if (!topic) {
-          quill.innerHTML = "<h1>Type a Title for the blog</h1>";
+          quill.root.innerHTML = "<h1>Type a Title for the blog</h1>";
           return;
         }
         if (generateBtn.disabled) return;
