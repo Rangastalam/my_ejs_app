@@ -360,7 +360,6 @@
         if (generateBtn.disabled) return;
         generateBtn.disabled = true;
         generateBtn.textContent = 'Generating...';
-        // quill.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;height:100%; width:100%"><div class='loader'></div><span style='margin-left:16px;'>Generating blog post...</span></div>`;
         try {
           const response = await fetch('/api/generate', {
             method: 'POST',

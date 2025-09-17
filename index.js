@@ -11,7 +11,7 @@ import flash from "connect-flash";
 import ImageKit from "imagekit";
 import multer from 'multer';
 import fs from 'fs';
-import { error } from "console";
+
 import { GoogleGenAI } from "@google/genai";
 
 const upload = multer({ dest: 'uploads/' });
@@ -40,6 +40,13 @@ const db = new pg.Client({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
+// const db = new pg.Client({
+//     user:process.env.PG_USER,
+//     host:process.env.PG_HOST,
+//     database:process.env.PG_DATABASE,
+//     password:process.env.PG_PASSWORD,
+//     port:process.env.PG_PORT,
+// });
 db.connect();
 
 app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true, cookie: { maxAge: 24 * 60 * 60 * 1000 } }));
