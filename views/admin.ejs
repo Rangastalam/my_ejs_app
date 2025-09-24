@@ -39,8 +39,10 @@
     .admin-nav {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 18px;
       width: 100%;
+      height: 100%;
       align-items: center;
     }
 
@@ -60,7 +62,11 @@
       background: #b7e4c7;
       color: #23283a;
     }
-
+    .links{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
     .admin-main-content {
       flex: 1;
       background: #181c24;
@@ -185,7 +191,7 @@
       .admin-sidebar {
         width: 100vw;
         flex-direction: row;
-        justify-content: center;
+        justify-content: space-between;
         padding: 18px 0;
         box-shadow: none;
       }
@@ -204,6 +210,12 @@
       .admin-main-content {
         padding: 24px 10vw;
       }
+      .links{
+        min-width: 150px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
     }
 
     option {
@@ -216,9 +228,16 @@
     <aside class="admin-sidebar">
       <div class="admin-logo">Your <span style="color: red;">MethLab</span></div>
       <nav class="admin-nav">
-        <a href="/admin/create" class="admin-nav-link<%= (activeTab === 'create') ? ' active' : '' %>">Create Blog</a>
-        <a href="/admin" class="admin-nav-link<%= (activeTab === 'dashboard') ? ' active' : '' %>">Dashboard</a>
+        <div class="links">
+          <a href="/admin/create" class="admin-nav-link<%= (activeTab === 'create') ? ' active' : '' %>">Create Blog</a>
+          <a href="/admin" class="admin-nav-link<%= (activeTab === 'dashboard') ? ' active' : '' %>">Dashboard</a>
+        </div>
+        <div class="logout">
+          <a href="/logout" class="admin-nav-link" style="color: red;">Logout</a>
+
+        </div>
       </nav>
+
     </aside>
     <main class="admin-main-content">
       <% if (activeTab==='dashboard' ) { %>
@@ -235,36 +254,37 @@
                 </div>
                 <% } %>
 
-          <div class="menu">
-            <% user_blogs.forEach(element=> { %>
+                  <div class="menu">
+                    <% user_blogs.forEach(element=> { %>
 
-              <div class="title-div">
-                <div id="titles" style="height: 100px;">
-
-
-                  <h5 class="card-title"
-                    style="padding: 20px; margin: 0; background-color: rgb(94, 129, 161); border-radius:15px ; display: inline-block;">
-                    <span><img src="./Assets/QuickBlog-Assets/blog_icon.png" /></span>
-                    <%=element.title %>
-                  </h5>
-
-                  <a href="/admin/<%=element.id%>/delete" onclick="return confirm('Are you sure you want to delete this post?');">
-                    <span style="width: 100px; margin: 10px; cursor: pointer;"><img src="/Assets/QuickBlog-Assets/delete.svg"
-                        style="width: 50px;" /></span>
-                  </a>
-                 
+                      <div class="title-div">
+                        <div id="titles" style="height: 100px;">
 
 
+                          <h5 class="card-title"
+                            style="padding: 20px; margin: 0; background-color: rgb(94, 129, 161); border-radius:15px ; display: inline-block;">
+                            <span><img src="./Assets/QuickBlog-Assets/blog_icon.png" /></span>
+                            <%=element.title %>
+                          </h5>
+
+                          <a href="/admin/<%=element.id%>/delete"
+                            onclick="return confirm('Are you sure you want to delete this post?');">
+                            <span style="width: 100px; margin: 10px; cursor: pointer;"><img
+                                src="/Assets/QuickBlog-Assets/delete.svg" style="width: 50px;" /></span>
+                          </a>
 
 
 
-                </div>
-              </div>
-
-              <% }) %>
 
 
-          </div>
+
+                        </div>
+                      </div>
+
+                      <% }) %>
+
+
+                  </div>
 
 
         </div>
@@ -326,7 +346,7 @@
                   </form>
 
 
-                  
+
 
   </div>
   <% } %>

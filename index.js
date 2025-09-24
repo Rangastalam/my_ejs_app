@@ -94,6 +94,14 @@ app.get("/", async (req, res) => {
     res.redirect("/login");
   }
 });
+app.get("/logout",(req,res)=>{
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
 app.get("/search", async (req, res) => {
   if (req.isAuthenticated()) {
     var category = req.query.type;
